@@ -1,24 +1,31 @@
 ---
-title: "Team XXX"
-sidebar: false 
+title: "Migration, Crime and Education Analytics Project"
 ---
 
-This is our project webpage.
+## Project Overview
 
-Please stay tuned to follow our project activities.
+This project analyzes the relationship between migration, crime statistics, and education levels across Turkish provinces.
 
-This is our template.
+The study focuses on three main questions:
 
-# Team Members
+1.  How does migration change across provinces?
+2.  Is there a relationship between crime counts and migration?
+3.  How are education levels related to crime indicators?
 
-1.  [Edin_Džeko](https://tr.wikipedia.org/wiki/Edin_D%C5%BEeko)
+## Main Methods
 
-2.  [Dušan Tadić](https://tr.wikipedia.org/wiki/Du%C5%A1an_Tadi%C4%87)
+-   Data cleaning and transformation
+-   Correlation analysis
+-   Linear regression
+-   Net migration analysis
+-   Time series forecasting with ARIMA/SARIMA
+-   Heatmap visualization for education and crime indicators
 
-3.  [Frederico Rodrigues de Paula Santos](https://tr.wikipedia.org/wiki/Fred_(1993_do%C4%9Fumlu_futbolcu))
+## Tools Used
 
-4.  [Sebastian Szymański](https://tr.wikipedia.org/wiki/Sebastian_Szyma%C5%84ski)
-
-# Project Topic
-
-# Data Set
+-   R
+-   dplyr
+-   tidyr
+-   ggplot2
+-   forecast
+-   Quarto
