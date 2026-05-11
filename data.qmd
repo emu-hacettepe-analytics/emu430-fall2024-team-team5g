@@ -52,32 +52,37 @@ Number of convicted persons entering correctional institutions, broken down by p
 library(readxl)
 library(knitr)
 
-aldigi_goc  <- read_excel("data/aldigi_goc.xls",  sheet = "t10")
-verdigi_goc <- read_excel("data/verdigi_goc.xls", sheet = "t11")
-egitim      <- read_excel("data/egitim.xlsx",      sheet = "Eğitim Durumu")
-suc         <- read_excel("data/suc.xls")
+# Read by sheet index to avoid encoding issues across platforms
+aldigi_goc  <- read_excel("data/aldigi_goc.xls",  sheet = 1)
+verdigi_goc <- read_excel("data/verdigi_goc.xls", sheet = 1)
+egitim      <- read_excel("data/egitim.xlsx",      sheet = 1)
+suc         <- read_excel("data/suc.xls",          sheet = 1)
 ```
 
 ### In-Migration Data
 
 ```{r}
-kable(head(aldigi_goc, 10))
+#| message: false
+kable(head(aldigi_goc, 6))
 ```
 
 ### Out-Migration Data
 
 ```{r}
-kable(head(verdigi_goc, 10))
+#| message: false
+kable(head(verdigi_goc, 6))
 ```
 
 ### Education Status Data
 
 ```{r}
-kable(head(egitim, 10))
+#| message: false
+kable(head(egitim, 6))
 ```
 
 ### Crime Data
 
 ```{r}
-kable(head(suc, 10))
+#| message: false
+kable(head(suc, 6))
 ```
