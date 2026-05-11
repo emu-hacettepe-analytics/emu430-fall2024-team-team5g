@@ -1,0 +1,79 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Migration, Crime and Education Analytics Project",
+    "section": "",
+    "text": "This project analyzes the relationship between internal migration, crime statistics, and education levels across Turkish provinces. Using data from TÜİK (Turkish Statistical Institute) covering the period 2018–2024, we aim to uncover socio-economic patterns that drive provincial differences in Turkey.\nThe study focuses on three main questions:\n\nHow does net migration vary across provinces, and which provinces attract or lose population?\nIs there a relationship between migration patterns and crime indicators?\nHow are education levels related to migration and crime across provinces?"
+  },
+  {
+    "objectID": "index.html#project-overview",
+    "href": "index.html#project-overview",
+    "title": "Migration, Crime and Education Analytics Project",
+    "section": "",
+    "text": "This project analyzes the relationship between internal migration, crime statistics, and education levels across Turkish provinces. Using data from TÜİK (Turkish Statistical Institute) covering the period 2018–2024, we aim to uncover socio-economic patterns that drive provincial differences in Turkey.\nThe study focuses on three main questions:\n\nHow does net migration vary across provinces, and which provinces attract or lose population?\nIs there a relationship between migration patterns and crime indicators?\nHow are education levels related to migration and crime across provinces?"
+  },
+  {
+    "objectID": "index.html#team-members",
+    "href": "index.html#team-members",
+    "title": "Migration, Crime and Education Analytics Project",
+    "section": "Team Members",
+    "text": "Team Members\n\nAlp Çağrı Karapıçak\nKoray Ekici\nHabibe Akbaş\nMevlüt Faruk Dikmen\nYahya Eren Kaya"
+  },
+  {
+    "objectID": "index.html#data",
+    "href": "index.html#data",
+    "title": "Migration, Crime and Education Analytics Project",
+    "section": "Data",
+    "text": "Data\nAll datasets are sourced from TÜİK and cover Turkish provinces from 2018 onwards (the period where all datasets align):\n\nProvincial in-migration by reason (2018–2024)\nProvincial out-migration by reason (2018–2024)\nEducational attainment by province (2018–2024)\nConvicted persons in correctional institutions by province"
+  },
+  {
+    "objectID": "index.html#methods",
+    "href": "index.html#methods",
+    "title": "Migration, Crime and Education Analytics Project",
+    "section": "Methods",
+    "text": "Methods\n\nNet migration calculation (in-migration − out-migration) by province and year\nExploratory data analysis and visualization\nCorrelation analysis between migration, education, and crime variables\nLinear regression models\nTime series analysis (ARIMA/SARIMA) for migration trends\nHeatmap visualizations for provincial comparisons"
+  },
+  {
+    "objectID": "index.html#tools",
+    "href": "index.html#tools",
+    "title": "Migration, Crime and Education Analytics Project",
+    "section": "Tools",
+    "text": "Tools\n\nR (dplyr, tidyr, ggplot2, readxl, forecast)\nQuarto for reporting"
+  },
+  {
+    "objectID": "analysis.html",
+    "href": "analysis.html",
+    "title": "Analysis",
+    "section": "",
+    "text": "Analysis results will be added here in subsequent project phases.\nPlanned analyses:\n\nNet Migration Analysis — Calculate net migration (in − out) per province per year; identify top receiving and losing provinces\nCorrelation Analysis — Explore pairwise correlations between migration, education, and crime variables\nLinear Regression — Model crime or migration as a function of education indicators\nTime Series Forecasting — Apply ARIMA/SARIMA models to provincial migration trends (2018–2024)\nHeatmap Visualizations — Provincial comparison maps for education levels and crime indicators\n\n\n1 + 1\n\n[1] 2\n\n\n\n\n\n Back to top"
+  },
+  {
+    "objectID": "data.html",
+    "href": "data.html",
+    "title": "Data",
+    "section": "",
+    "text": "All datasets are obtained from TÜİK (Türkiye İstatistik Kurumu — Turkish Statistical Institute). The analyses focus on the period 2018–2024, which is the overlapping timeframe for all datasets."
+  },
+  {
+    "objectID": "data.html#data-sources",
+    "href": "data.html#data-sources",
+    "title": "Data",
+    "section": "",
+    "text": "All datasets are obtained from TÜİK (Türkiye İstatistik Kurumu — Turkish Statistical Institute). The analyses focus on the period 2018–2024, which is the overlapping timeframe for all datasets."
+  },
+  {
+    "objectID": "data.html#datasets",
+    "href": "data.html#datasets",
+    "title": "Data",
+    "section": "Datasets",
+    "text": "Datasets\n\n1. Provincial In-Migration by Reason (aldigi_goc.xls)\nRecords the number of people who migrated into each province, broken down by reason for migration (work, education, family, housing, etc.).\n\nSheet: t10\nCoverage: 81 provinces × 2018–2024\nKey columns: Year, Province, Total in-migration, and migration reason categories\n\n\n\n2. Provincial Out-Migration by Reason (verdigi_goc.xls)\nRecords the number of people who migrated out of each province, broken down by reason for migration.\n\nSheet: t11\nCoverage: 81 provinces × 2018–2024\nKey columns: Year, Province, Total out-migration, and migration reason categories\n\n\n\n3. Education Status by Province (egitim.xlsx)\nPopulation aged 6 and above classified by educational attainment level, broken down by province, year, and gender.\n\nSheet: Eğitim Durumu\nCoverage: 81 provinces × multiple years (2018–2024)\nKey columns: Year, Province, Education level, Total, Male, Female, Male %, Female %\n\n\n\n4. Crime Data — Convicted Persons by Province (suc.xls)\nNumber of convicted persons entering correctional institutions, broken down by province.\n\nCoverage: Multiple years including 2018 onwards\nKey columns: Province (columns), Year (rows), Count of convicted persons"
+  },
+  {
+    "objectID": "data.html#data-preview",
+    "href": "data.html#data-preview",
+    "title": "Data",
+    "section": "Data Preview",
+    "text": "Data Preview\n\nlibrary(readxl)\nlibrary(knitr)\n\n# Read by sheet index to avoid encoding issues across platforms\naldigi_goc  &lt;- read_excel(\"data/aldigi_goc.xls\",  sheet = 1)\nverdigi_goc &lt;- read_excel(\"data/verdigi_goc.xls\", sheet = 1)\negitim      &lt;- read_excel(\"data/egitim.xlsx\",      sheet = 1)\nsuc         &lt;- read_excel(\"data/suc.xls\",          sheet = 1)\n\n\nIn-Migration Data\n\nkable(head(aldigi_goc, 6))\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nGöç etme nedenine göre illerin aldığı göç, 2018-2024\n…2\n…3\n…4\n…5\n…6\n…7\n…8\n…9\n…10\n…11\n…12\n…13\n…14\n…15\n\n\n\n\nProvincial in-migration by reason for migration, 2018-2024\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\n\n\nYıl\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nYear\nİl\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nProvince\nNA\nGöç etme nedeni-Reason for migration\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\n\n\n\nNA\nNA\nToplam\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nTotal\nTayin / iş değişikliği\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nAssignation / change of job |İşe başlamak / iş bulmak Starting / finding a job |Eğitim Education |Medeni durum değişikliği / ailevi nedenler Change of marital status / family related reasons |Daha iyi konut ve yaşam koşulları Better housing and living conditions |Hane / aile fertlerinden birine bağımlı göç Migration related to any member of the household / family |Aile yanına / memlekete geri dönme(1) Returning to family home / hometown(1) |Sağlık / bakım Health / care |Ev alınmasıBuying a house |Emeklilik Retirement |Diğer Other |BilinmeyenUnknown | |2024 |Toplam-Total |2682673 |280980 |221022 |479622 |140859 |512370 |579507 |122550 |15971 |89858 |15948 |52142 |171844 | |2024 |Adana |55342 |6221 |3796 |8595 |2647 |11416 |11715 |4134 |259 |976 |231 |746 |4606 | |2024 |Adıyaman |22295 |1637 |1248 |3813 |779 |2607 |3402 |6877 |71 |286 |47 |396 |1132 |\n\n\n\n\nOut-Migration Data\n\nkable(head(verdigi_goc, 6))\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nGöç etme nedenine göre illerin verdiği göç, 2018-2024\n…2\n…3\n…4\n…5\n…6\n…7\n…8\n…9\n…10\n…11\n…12\n…13\n…14\n…15\n\n\n\n\nProvincial out-migration by reason for migration, 2018-2024\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\n\n\nYıl\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nYear\nİl\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nProvince\nNA\nGöç etme nedeni-Reason for migration\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\n\n\n\nNA\nNA\nToplam\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nTotal\nTayin / iş değişikliği\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nAssignation / change of job\nİşe\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nbaşlamak / iş bulmak Starting / finding a job |Eğitim Education |Medeni durum değişikliği / ailevi nedenler Change of marital status / family-related reasons |Daha iyi konut ve yaşam koşulları Better housing and living conditions |Hane / aile fertlerinden birine bağımlı göç Migration related to any member of the household / family |Aile yanına / memlekete geri dönme(1) Returning to family home / hometown(1) |Sağlık / bakım Health / care |Ev alınması Buying a house |Emeklilik Retirement |Diğer Other |Bilinmeyen Unknown | |2024 |Toplam-Total |2682673 |280980 |221022 |479622 |140859 |512370 |579507 |122550 |15971 |89858 |15948 |52142 |171844 | |2024 |Adana |56108 |5251 |4260 |12816 |3443 |10465 |12071 |2688 |263 |1255 |237 |998 |2361 | |2024 |Adıyaman |21158 |2069 |1663 |4609 |1235 |4202 |4362 |1203 |104 |475 |56 |370 |810 |\n\n\n\n\nEducation Status Data\n\nkable(head(egitim, 6))\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nEğitim Durumu\n…2\n…3\n…4\n…5\n…6\n…7\n…8\n\n\n\n\nYıl\nİl\nEğitim Durumu(6+ yaş)\nToplam\nErkek\nKadın\nErkek Oranı\nKadın Oranı\n\n\n2024\nADANA\nOKUMA YAZMA BİLMEYEN\n55709\n9663\n46046\n0.9\n4.4\n\n\n2024\nADANA\nOKUMA YAZMA BİLEN FAKAT BİR OKUL BİTİRMEYEN\n217557\n94607\n122950\n9.1\n11.7\n\n\n2024\nADANA\nİLKOKUL\n437784\n187299\n250485\n17.9\n23.9\n\n\n2024\nADANA\nORTAOKUL VEYA DENGİ MESLEK OKULU\n383355\n209042\n174313\n20\n16.6\n\n\n2024\nADANA\nİLKÖĞRETİM\n131893\n79594\n52299\n7.6\n5\n\n\n\n\n\n\n\nCrime Data\n\nkable(head(suc, 6))\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nSatırlar\n…2\nAdana-1\nAdıyaman-2\nAfyonkarahisar-3\nAksaray-68\nAmasya-5\nAnkara-6\nAntalya-7\nArdahan-75\nArtvin-8\nAydın-9\nAğrı-4\nBalıkesir-10\nBartın-74\nBatman-72\nBayburt-69\nBilecik-11\nBingöl-12\nBitlis-13\nBolu-14\nBurdur-15\nBursa-16\nDenizli-20\nDiyarbakır-21\nDüzce-81\nEdirne-22\nElazığ-23\nErzincan-24\nErzurum-25\nEskişehir-26\nGaziantep-27\nGiresun-28\nGümüşhane-29\nHakkari-30\nHatay-31\nIsparta-32\nIğdır-76\nKahramanmaraş-46\nKarabük-78\nKaraman-70\nKars-36\nKastamonu-37\nKayseri-38\nKilis-79\nKocaeli-41\nKonya-42\nKütahya-43\nKırklareli-39\nKırıkkale-71\nKırşehir-40\nMalatya-44\nManisa-45\nMardin-47\nMersin-33\nMuğla-48\nMuş-49\nNevşehir-50\nNiğde-51\nOrdu-52\nOsmaniye-80\nRize-53\nSakarya-54\nSamsun-55\nSiirt-56\nSinop-57\nSivas-58\nTekirdağ-59\nTokat-60\nTrabzon-61\nTunceli-62\nUşak-64\nVan-65\nYabancı Ülke-98\nYalova-77\nYozgat-66\nZonguldak-67\nÇanakkale-17\nÇankırı-18\nÇorum-19\nİstanbul-34\nİzmir-35\nŞanlıurfa-63\nŞırnak-73\n\n\n\n\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\nNA\n\n\n1990\n1201\n222\n458\n236\n247\n3124\n1123\nNA\n96\n1285\n226\n1093\nNA\n76\n23\n125\n106\n93\n461\n287\n1608\n1026\n839\nNA\n365\n211\n141\n485\n626\n915\n310\n58\n56\n675\n362\nNA\n439\nNA\n172\n374\n291\n638\nNA\n881\n1121\n522\n437\n396\n181\n275\n1869\n249\n1108\n682\n137\n215\n228\n493\nNA\n144\n995\n974\n136\n185\n419\n465\n368\n333\n78\n351\n294\n39\nNA\n259\n793\n410\n119\n405\n4910\n3875\n377\n30\nNA\n\n\n1991\n1292\n246\n742\n225\n355\n3213\n1379\nNA\n114\n1890\n186\n2061\n35\n66\n17\n254\n166\n78\n592\n499\n2003\n1666\n644\nNA\n464\n236\n138\n455\n774\n910\n362\n60\n84\n683\n410\nNA\n581\nNA\n152\n448\n241\n705\nNA\n868\n1446\n923\n538\n482\n383\n244\n2511\n190\n1085\n801\n131\n228\n260\n457\nNA\n112\n1015\n1135\n105\n113\n532\n618\n432\n296\n56\n384\n344\n48\nNA\n311\n803\n704\n109\n409\n5918\n5005\n425\n65\nNA\n\n\n1992\n1346\n205\n575\n269\n358\n3343\n1339\n46\n65\n1540\n171\n1779\n128\n75\n21\n180\n88\n84\n611\n342\n2185\n1555\n677\nNA\n647\n251\n101\n421\n1175\n839\n238\n46\n103\n668\n454\n52\n445\nNA\n190\n459\n255\n664\nNA\n1062\n1624\n590\n493\n488\n231\n272\n2541\n183\n1245\n992\n113\n269\n318\n384\nNA\n106\n1061\n923\n70\n148\n371\n744\n365\n338\n52\n400\n323\n60\nNA\n282\n727\n623\n104\n396\n7563\n4559\n301\n89\nNA\n\n\n1993\n1381\n183\n688\n216\n336\n4370\n1401\n42\n46\n1503\n233\n1579\n147\n56\n30\n222\n57\n110\n559\n238\n2297\n1481\n647\nNA\n522\n292\n126\n501\n1007\n903\n245\n36\n34\n635\n471\n48\n473\nNA\n208\n287\n216\n623\nNA\n1037\n1593\n697\n455\n338\n170\n286\n2095\n179\n1228\n931\n113\n321\n244\n319\nNA\n131\n967\n798\n72\n135\n277\n720\n386\n302\n40\n406\n305\n75\nNA\n234\n744\n693\n96\n393\n7462\n4569\n282\n76\nNA\n\n\n1994\n1718\n315\n902\n249\n384\n4942\n1649\n37\n216\n1622\n299\n1918\n197\n54\n36\n244\n87\n139\n651\n316\n2195\n1402\n820\nNA\n625\n411\n146\n504\n1035\n1083\n225\n40\n47\n777\n605\n60\n419\nNA\n163\n348\n270\n680\nNA\n1041\n1572\n721\n550\n358\n177\n352\n3010\n245\n1363\n1068\n160\n311\n271\n359\nNA\n213\n1016\n1066\n68\n137\n326\n904\n490\n280\n37\n552\n274\n86\nNA\n315\n862\n850\n131\n471\n7401\n5443\n329\n103\nNA"
+  }
+]

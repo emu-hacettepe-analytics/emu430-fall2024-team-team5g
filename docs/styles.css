@@ -1,0 +1,81 @@
+/* EMU430 Team 5G - Navy / Yellow / White Theme */
+/* Primary: #1A3560 (navy), Accent: #F4C430 (gold), Background: #FFFFFF */
+
+/* ── Navbar ── */
+.navbar {
+  background-color: #1A3560 !important;
+  border-bottom: 3px solid #F4C430;
+}
+
+.navbar-brand,
+.navbar .nav-link {
+  color: #F4C430 !important;
+  font-weight: 600;
+}
+
+.navbar .nav-link:hover,
+.navbar .nav-link.active {
+  color: #FFFFFF !important;
+}
+
+/* ── Page headings ── */
+h1, h2, h3 {
+  color: #1A3560;
+}
+
+h2 {
+  border-bottom: 2px solid #F4C430;
+  padding-bottom: 4px;
+}
+
+/* ── Links ── */
+a {
+  color: #1A3560;
+}
+
+a:hover {
+  color: #F4C430;
+}
+
+/* ── Footer ── */
+.nav-footer {
+  background-color: #1A3560 !important;
+  color: #FFFFFF;
+  border-top: 3px solid #F4C430;
+}
+
+.nav-footer a {
+  color: #F4C430;
+}
+
+/* ── TOC sidebar ── */
+#TOC a {
+  color: #1A3560;
+}
+
+#TOC a:hover,
+#TOC a.active {
+  color: #F4C430;
+  font-weight: bold;
+}
+
+/* ── Code blocks ── */
+pre.sourceCode {
+  border-left: 4px solid #F4C430;
+  background-color: #f8f9fb;
+}
+
+/* ── Tables ── */
+table thead {
+  background-color: #1A3560;
+  color: #FFFFFF;
+}
+
+table tbody tr:hover {
+  background-color: #fff8e1;
+}
+
+/* ── Callout / alert boxes ── */
+.callout {
+  border-left-color: #F4C430;
+}

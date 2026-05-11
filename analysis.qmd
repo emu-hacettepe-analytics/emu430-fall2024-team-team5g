@@ -1,0 +1,17 @@
+---
+title: "Analysis"
+---
+
+Analysis results will be added here in subsequent project phases.
+
+Planned analyses:
+
+- **Net Migration Analysis** — Calculate net migration (in − out) per province per year; identify top receiving and losing provinces
+- **Correlation Analysis** — Explore pairwise correlations between migration, education, and crime variables
+- **Linear Regression** — Model crime or migration as a function of education indicators
+- **Time Series Forecasting** — Apply ARIMA/SARIMA models to provincial migration trends (2018–2024)
+- **Heatmap Visualizations** — Provincial comparison maps for education levels and crime indicators
+
+```{r}
+1 + 1
+```

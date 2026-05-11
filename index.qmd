@@ -1,31 +1,49 @@
 ---
 title: "Migration, Crime and Education Analytics Project"
+sidebar: false
 ---
 
 ## Project Overview
 
-yokk
+This project analyzes the relationship between internal migration, crime statistics, and education levels across Turkish provinces. Using data from TÜİK (Turkish Statistical Institute) covering the period 2018–2024, we aim to uncover socio-economic patterns that drive provincial differences in Turkey.
 
 The study focuses on three main questions:
 
-1.  How does migration change across provinces?
-2.  Is there a relationship between crime counts and migration?
-3.  How are education levels related to crime indicators?
+1. How does net migration vary across provinces, and which provinces attract or lose population?
+2. Is there a relationship between migration patterns and crime indicators?
+3. How are education levels related to migration and crime across provinces?
 
+<<<<<<< HEAD
 ## Main Methods yokokoko
+=======
+## Team Members
+>>>>>>> 6b8b7fa5ee727e5518614e1ab387c46083d00e40
 
--   Data cleaning and transformation
--   Correlation analysis
--   Linear regression
--   Net migration analysis
--   Time series forecasting with ARIMA/SARIMA
--   Heatmap visualization for education and crime indicators
+1. Alp Çağrı Karapıçak
+2. Koray Ekici
+3. Habibe Akbaş
+4. Mevlüt Faruk Dikmen
+5. Yahya Eren Kaya
 
-## Tools Used
+## Data
 
--   R
--   dplyr
--   tidyr
--   ggplot2
--   forecast
--   Quarto
+All datasets are sourced from **TÜİK** and cover Turkish provinces from **2018 onwards** (the period where all datasets align):
+
+- **Provincial in-migration by reason** (2018–2024)
+- **Provincial out-migration by reason** (2018–2024)
+- **Educational attainment by province** (2018–2024)
+- **Convicted persons in correctional institutions by province**
+
+## Methods
+
+- Net migration calculation (in-migration − out-migration) by province and year
+- Exploratory data analysis and visualization
+- Correlation analysis between migration, education, and crime variables
+- Linear regression models
+- Time series analysis (ARIMA/SARIMA) for migration trends
+- Heatmap visualizations for provincial comparisons
+
+## Tools
+
+- R (dplyr, tidyr, ggplot2, readxl, forecast)
+- Quarto for reporting

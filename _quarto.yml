@@ -15,7 +15,7 @@ website:
         href: analysis.qmd
     tools:
       - icon: github
-        href: https://twitter.com
+        href: https://github.com/emu-hacettepe-analytics/emu430-fall2024-team-team5g
 
   page-navigation: true
   back-to-top-navigation: true

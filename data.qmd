@@ -1,0 +1,88 @@
+---
+title: "Data"
+---
+
+## Data Sources
+
+All datasets are obtained from **TÜİK** (Türkiye İstatistik Kurumu — Turkish Statistical Institute). The analyses focus on the period **2018–2024**, which is the overlapping timeframe for all datasets.
+
+---
+
+## Datasets
+
+### 1. Provincial In-Migration by Reason (`aldigi_goc.xls`)
+
+Records the number of people who migrated **into** each province, broken down by reason for migration (work, education, family, housing, etc.).
+
+- **Sheet:** `t10`
+- **Coverage:** 81 provinces × 2018–2024
+- **Key columns:** Year, Province, Total in-migration, and migration reason categories
+
+### 2. Provincial Out-Migration by Reason (`verdigi_goc.xls`)
+
+Records the number of people who migrated **out of** each province, broken down by reason for migration.
+
+- **Sheet:** `t11`
+- **Coverage:** 81 provinces × 2018–2024
+- **Key columns:** Year, Province, Total out-migration, and migration reason categories
+
+### 3. Education Status by Province (`egitim.xlsx`)
+
+Population aged 6 and above classified by educational attainment level, broken down by province, year, and gender.
+
+- **Sheet:** `Eğitim Durumu`
+- **Coverage:** 81 provinces × multiple years (2018–2024)
+- **Key columns:** Year, Province, Education level, Total, Male, Female, Male %, Female %
+
+### 4. Crime Data — Convicted Persons by Province (`suc.xls`)
+
+Number of convicted persons entering correctional institutions, broken down by province.
+
+- **Coverage:** Multiple years including 2018 onwards
+- **Key columns:** Province (columns), Year (rows), Count of convicted persons
+
+---
+
+## Data Preview
+
+```{r}
+#| message: false
+#| warning: false
+
+library(readxl)
+library(knitr)
+
+# Read by sheet index to avoid encoding issues across platforms
+aldigi_goc  <- read_excel("data/aldigi_goc.xls",  sheet = 1)
+verdigi_goc <- read_excel("data/verdigi_goc.xls", sheet = 1)
+egitim      <- read_excel("data/egitim.xlsx",      sheet = 1)
+suc         <- read_excel("data/suc.xls",          sheet = 1)
+```
+
+### In-Migration Data
+
+```{r}
+#| message: false
+kable(head(aldigi_goc, 6))
+```
+
+### Out-Migration Data
+
+```{r}
+#| message: false
+kable(head(verdigi_goc, 6))
+```
+
+### Education Status Data
+
+```{r}
+#| message: false
+kable(head(egitim, 6))
+```
+
+### Crime Data
+
+```{r}
+#| message: false
+kable(head(suc, 6))
+```
