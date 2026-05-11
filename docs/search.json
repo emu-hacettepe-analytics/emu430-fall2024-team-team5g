@@ -1,0 +1,58 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Migration, Crime and Education Analytics Project",
+    "section": "",
+    "text": "yokk\nThe study focuses on three main questions:\n\nHow does migration change across provinces?\nIs there a relationship between crime counts and migration?\nHow are education levels related to crime indicators?"
+  },
+  {
+    "objectID": "index.html#project-overview",
+    "href": "index.html#project-overview",
+    "title": "Migration, Crime and Education Analytics Project",
+    "section": "",
+    "text": "yokk\nThe study focuses on three main questions:\n\nHow does migration change across provinces?\nIs there a relationship between crime counts and migration?\nHow are education levels related to crime indicators?"
+  },
+  {
+    "objectID": "index.html#main-methods",
+    "href": "index.html#main-methods",
+    "title": "Migration, Crime and Education Analytics Project",
+    "section": "Main Methods",
+    "text": "Main Methods\n\nData cleaning and transformation\nCorrelation analysis\nLinear regression\nNet migration analysis\nTime series forecasting with ARIMA/SARIMA\nHeatmap visualization for education and crime indicators"
+  },
+  {
+    "objectID": "index.html#tools-used",
+    "href": "index.html#tools-used",
+    "title": "Migration, Crime and Education Analytics Project",
+    "section": "Tools Used",
+    "text": "Tools Used\n\nR\ndplyr\ntidyr\nggplot2\nforecast\nQuarto"
+  },
+  {
+    "objectID": "emu430-fall2024-team-team5g/index.html",
+    "href": "emu430-fall2024-team-team5g/index.html",
+    "title": "Migration, Crime and Education Analytics Project",
+    "section": "",
+    "text": "This project analyzes the relationship between migration, crime statistics, and education levels across Turkish provinces.\nThe study focuses on three main questions:\n\nHow does migration change across provinces?\nIs there a relationship between crime counts and migration?\nHow are education levels related to crime indicators?"
+  },
+  {
+    "objectID": "emu430-fall2024-team-team5g/index.html#project-overview",
+    "href": "emu430-fall2024-team-team5g/index.html#project-overview",
+    "title": "Migration, Crime and Education Analytics Project",
+    "section": "",
+    "text": "This project analyzes the relationship between migration, crime statistics, and education levels across Turkish provinces.\nThe study focuses on three main questions:\n\nHow does migration change across provinces?\nIs there a relationship between crime counts and migration?\nHow are education levels related to crime indicators?"
+  },
+  {
+    "objectID": "emu430-fall2024-team-team5g/index.html#main-methods",
+    "href": "emu430-fall2024-team-team5g/index.html#main-methods",
+    "title": "Migration, Crime and Education Analytics Project",
+    "section": "Main Methods",
+    "text": "Main Methods\n\nData cleaning and transformation\nCorrelation analysis\nLinear regression\nNet migration analysis\nTime series forecasting with ARIMA/SARIMA\nHeatmap visualization for education and crime indicators"
+  },
+  {
+    "objectID": "emu430-fall2024-team-team5g/index.html#tools-used",
+    "href": "emu430-fall2024-team-team5g/index.html#tools-used",
+    "title": "Migration, Crime and Education Analytics Project",
+    "section": "Tools Used",
+    "text": "Tools Used\n\nR\ndplyr\ntidyr\nggplot2\nforecast\nQuarto"
+  }
+]

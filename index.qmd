@@ -4,7 +4,7 @@ title: "Migration, Crime and Education Analytics Project"
 
 ## Project Overview
 
-This project analyzes the relationship between migration, crime statistics, and education levels across Turkish provinces.
+yokk
 
 The study focuses on three main questions:
 
