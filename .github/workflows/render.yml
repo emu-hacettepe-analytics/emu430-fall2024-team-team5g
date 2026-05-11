@@ -37,11 +37,13 @@ jobs:
 
       - name: Install R packages
         run: |
-          install.packages(
-            c("readxl", "knitr", "rmarkdown",
-              "dplyr", "tidyr", "ggplot2", "scales", "forecast"),
-            repos = "https://cran.r-project.org"
-          )
+          pkgs <- c("readxl", "knitr", "rmarkdown",
+                    "dplyr", "tidyr", "ggplot2", "scales", "forecast")
+          install.packages(pkgs)
+          lapply(pkgs, function(p) {
+            if (!requireNamespace(p, quietly = TRUE))
+              stop(paste("Package", p, "failed to install"))
+          })
         shell: Rscript {0}
 
       - name: Setup Quarto
