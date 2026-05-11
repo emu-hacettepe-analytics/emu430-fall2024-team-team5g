@@ -1,6 +1,10 @@
 project:
   type: website
   output-dir: docs
+  render:
+    - index.qmd
+    - data.qmd
+    - analysis.qmd
 
 website:
   title: "Migration, Crime & Education Analytics"

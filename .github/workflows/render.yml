@@ -52,8 +52,11 @@ jobs:
       - name: Install TinyTeX for PDF rendering
         run: quarto install tinytex --no-prompt
 
-      - name: Render Quarto project
+      - name: Render website (HTML)
         run: quarto render --verbose
+
+      - name: Render PDF report
+        run: quarto render report.qmd --to pdf --output-dir docs
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
