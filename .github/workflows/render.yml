@@ -58,7 +58,9 @@ jobs:
         run: quarto render --verbose
 
       - name: Render PDF report
-        run: quarto render report.qmd --to pdf --output-dir docs
+        run: |
+          quarto render report.qmd --to pdf
+          mv report.pdf docs/report.pdf
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
