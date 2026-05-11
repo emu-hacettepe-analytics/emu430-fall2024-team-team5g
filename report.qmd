@@ -2,10 +2,10 @@
 title: "Migration, Crime and Education Analytics in Turkey"
 subtitle: "A Provincial Analysis (2008–2024)"
 author:
+  - name: Mevlüt Faruk Dikmen
+  - name: Habibe Akbaş
   - name: Alp Çağrı Karapıçak
   - name: Koray Ekici
-  - name: Habibe Akbaş
-  - name: Mevlüt Faruk Dikmen
   - name: Yahya Eren Kaya
 date: today
 date-format: "MMMM YYYY"

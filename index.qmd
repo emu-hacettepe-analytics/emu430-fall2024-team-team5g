@@ -15,10 +15,10 @@ The study focuses on three main questions:
 
 ## Team Members
 
-1. Alp Çağrı Karapıçak
-2. Koray Ekici
-3. Habibe Akbaş
-4. Mevlüt Faruk Dikmen
+1. Mevlüt Faruk Dikmen
+2. Habibe Akbaş
+3. Alp Çağrı Karapıçak
+4. Koray Ekici
 5. Yahya Eren Kaya
 
 ## Data
