@@ -13,7 +13,11 @@ The study focuses on three main questions:
 2. Is there a relationship between migration patterns and crime indicators?
 3. How are education levels related to migration and crime across provinces?
 
+ HEAD
+## Main Methods yokokoko
+
 ## Team Members
+ 6b8b7fa5ee727e5518614e1ab387c46083d00e40
 
 1. Alp Çağrı Karapıçak
 2. Koray Ekici
