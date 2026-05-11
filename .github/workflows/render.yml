@@ -24,7 +24,11 @@ jobs:
 
       - name: Install R packages
         run: |
-          install.packages(c("readxl", "knitr", "rmarkdown"), repos = "https://cran.r-project.org")
+          install.packages(
+            c("readxl", "knitr", "rmarkdown",
+              "dplyr", "tidyr", "ggplot2", "scales", "forecast"),
+            repos = "https://cran.r-project.org"
+          )
         shell: Rscript {0}
 
       - name: Setup Quarto
@@ -32,6 +36,9 @@ jobs:
 
       - name: Render Quarto project
         run: quarto render --verbose
+
+      - name: Add .nojekyll to prevent Jekyll processing
+        run: touch docs/.nojekyll
 
       - name: Commit and push rendered docs
         run: |

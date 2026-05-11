@@ -4,6 +4,7 @@ project:
 
 website:
   title: "Migration, Crime and Education Analytics Lab"
+  site-url: https://emu-hacettepe-analytics.github.io/emu430-fall2024-team-team5g
   navbar:
     search: true
     left:
