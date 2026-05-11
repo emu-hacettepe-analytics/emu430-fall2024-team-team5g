@@ -3,10 +3,11 @@ project:
   output-dir: docs
 
 website:
-  title: "Migration, Crime and Education Analytics Lab"
+  title: "Migration, Crime & Education Analytics"
   site-url: https://emu-hacettepe-analytics.github.io/emu430-fall2024-team-team5g
   navbar:
     search: true
+    background: dark
     left:
       - text: Home
         href: index.qmd
@@ -17,19 +18,24 @@ website:
     tools:
       - icon: github
         href: https://github.com/emu-hacettepe-analytics/emu430-fall2024-team-team5g
+      - icon: file-earmark-pdf
+        href: report.pdf
+        text: "Download PDF Report"
 
   page-navigation: true
   back-to-top-navigation: true
 
   page-footer:
-    center: "Hacettepe IE - EMU 430 - Fall 2024"
+    center: "Hacettepe IE — EMU 430 — Fall 2024"
     border: true
 
 format:
   html:
     toc: true
     toc-location: left
-    theme: simplex
-    css: styles.css
+    theme: [darkly, styles.css]
+    code-fold: true
+    code-summary: "Show code"
+    df-print: kable
 
 editor: visual

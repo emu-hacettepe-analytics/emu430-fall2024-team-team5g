@@ -38,7 +38,7 @@ jobs:
       - name: Install R packages
         run: |
           pkgs <- c("readxl", "knitr", "rmarkdown",
-                    "dplyr", "tidyr", "ggplot2", "scales", "forecast")
+                    "dplyr", "tidyr", "ggplot2", "scales", "forecast", "patchwork")
           install.packages(pkgs)
           lapply(pkgs, function(p) {
             if (!requireNamespace(p, quietly = TRUE))
@@ -48,6 +48,9 @@ jobs:
 
       - name: Setup Quarto
         uses: quarto-dev/quarto-actions/setup@v2
+
+      - name: Install TinyTeX for PDF rendering
+        run: quarto install tinytex --no-prompt
 
       - name: Render Quarto project
         run: quarto render --verbose

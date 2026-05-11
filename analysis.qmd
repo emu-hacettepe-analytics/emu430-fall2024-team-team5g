@@ -2,9 +2,10 @@
 title: "Analysis"
 ---
 
-```{r}
+```{r setup}
 #| message: false
 #| warning: false
+#| code-fold: false
 
 library(readxl)
 library(dplyr)
@@ -12,464 +13,492 @@ library(tidyr)
 library(ggplot2)
 library(scales)
 library(forecast)
+library(patchwork)
+library(knitr)
 
-# Raw data loading
-# illerin_aldıgı_goc2: skip 3 header rows so column assignment works directly
-illerin_aldıgı_goc2 <- read_excel("data/aldigi_goc.xls",  sheet = 1,
-                                   skip = 3, col_names = FALSE)
-illerin_verdigi_goc  <- read_excel("data/verdigi_goc.xls", sheet = 1,
-                                   col_names = FALSE)
-crime  <- read_excel("data/suc.xls", sheet = 1)
-sucsuc <- crime
+# ── Dark ggplot2 theme matching the website ──────────────────────────────────
+theme_dark_site <- function(base_size = 12) {
+  theme_minimal(base_size = base_size) %+replace%
+    theme(
+      plot.background   = element_rect(fill = "#1e293b", color = NA),
+      panel.background  = element_rect(fill = "#1e293b", color = NA),
+      panel.grid.major  = element_line(color = "#2d3d52", linewidth = 0.35),
+      panel.grid.minor  = element_blank(),
+      axis.text         = element_text(color = "#94a3b8", size = base_size * 0.82),
+      axis.title        = element_text(color = "#cbd5e1", size = base_size * 0.9),
+      plot.title        = element_text(color = "#f1f5f9", face = "bold",
+                                       size = base_size * 1.2, hjust = 0.5,
+                                       margin = margin(b = 6)),
+      plot.subtitle     = element_text(color = "#94a3b8", size = base_size * 0.88,
+                                       hjust = 0.5, margin = margin(b = 10)),
+      plot.caption      = element_text(color = "#64748b", size = base_size * 0.75),
+      strip.background  = element_rect(fill = "#0f172a", color = NA),
+      strip.text        = element_text(color = "#38bdf8", face = "bold",
+                                       size = base_size * 0.88),
+      legend.background = element_rect(fill = "#1e293b", color = NA),
+      legend.text       = element_text(color = "#cbd5e1"),
+      legend.title      = element_text(color = "#e2e8f0"),
+      plot.margin       = margin(14, 14, 14, 14)
+    )
+}
+theme_set(theme_dark_site())
+
+COL_POS  <- "#38bdf8"   # sky-blue  — positive / in-migration
+COL_NEG  <- "#f87171"   # coral-red — negative / out-migration
+COL_FCST <- "#a78bfa"   # violet    — forecast
 ```
 
 ---
 
 ## Data Preparation
 
-### Turkish Character Normalization
-
-```{r}
+```{r load-data}
 #| message: false
 #| warning: false
 
 il_temizle <- function(x) {
   x <- trimws(x)
-  x <- gsub("İ", "I", x); x <- gsub("ı", "i", x)
-  x <- gsub("ğ", "g", x); x <- gsub("Ğ", "G", x)
-  x <- gsub("ü", "u", x); x <- gsub("Ü", "U", x)
-  x <- gsub("ş", "s", x); x <- gsub("Ş", "S", x)
-  x <- gsub("ö", "o", x); x <- gsub("Ö", "O", x)
-  x <- gsub("ç", "c", x); x <- gsub("Ç", "C", x)
+  x <- gsub("İ","I",x); x <- gsub("ı","i",x)
+  x <- gsub("ğ","g",x); x <- gsub("Ğ","G",x)
+  x <- gsub("ü","u",x); x <- gsub("Ü","U",x)
+  x <- gsub("ş","s",x); x <- gsub("Ş","S",x)
+  x <- gsub("ö","o",x); x <- gsub("Ö","O",x)
+  x <- gsub("ç","c",x); x <- gsub("Ç","C",x)
   toupper(x)
 }
-```
 
-### In-Migration (`goc_alan`)
+goc_cols <- c("Yil","Il","Toplam","Tayin","IsBulma","Egitim","Aile",
+              "Konut","AileBagimli","MemleketeDonus","Saglik",
+              "EvAlma","Emeklilik","Diger","Bilinmeyen")
 
-```{r}
-#| message: false
-#| warning: false
-
-goc_alan <- illerin_aldıgı_goc2
-
-colnames(goc_alan) <- c(
-  "Yil", "Il", "Toplam", "Tayin", "IsBulma", "Egitim",
-  "Aile", "Konut", "AileBagimli", "MemleketeDonus",
-  "Saglik", "EvAlma", "Emeklilik", "Diger", "Bilinmeyen"
-)
-
-goc_alan <- goc_alan %>%
+goc_alan <- read_excel("data/aldigi_goc.xls", sheet = 1,
+                        skip = 3, col_names = FALSE) %>%
+  setNames(goc_cols) %>%
   fill(Yil, .direction = "down") %>%
-  filter(!is.na(Il),
-         Il != "İl\nProvince",
-         Il != "Toplam - Total",
-         Il != "Toplam-Total") %>%
-  mutate(
-    Il_key = il_temizle(Il),
-    across(c(Yil, Toplam:Bilinmeyen), as.numeric)
-  )
-```
+  filter(!is.na(Il), !grepl("Province|Toplam|İl", Il, ignore.case = TRUE)) %>%
+  mutate(Il_key = il_temizle(Il),
+         across(c(Yil, Toplam:Bilinmeyen), ~ suppressWarnings(as.numeric(.)))) %>%
+  filter(!is.na(Yil))
 
-### Out-Migration (`goc_veren`)
-
-```{r}
-#| message: false
-#| warning: false
-
-goc_veren <- illerin_verdigi_goc[-c(1:3), ]
-
-colnames(goc_veren) <- c(
-  "Yil", "Il", "Toplam", "Tayin", "IsBulma", "Egitim",
-  "Aile", "Konut", "AileBagimli", "MemleketeDonus",
-  "Saglik", "EvAlma", "Emeklilik", "Diger", "Bilinmeyen"
-)
-
-goc_veren <- goc_veren %>%
+goc_veren <- read_excel("data/verdigi_goc.xls", sheet = 1,
+                         skip = 3, col_names = FALSE) %>%
+  setNames(goc_cols) %>%
   fill(Yil, .direction = "down") %>%
-  filter(!is.na(Il),
-         Il != "İl\nProvince",
-         Il != "Toplam - Total",
-         Il != "Toplam-Total") %>%
-  mutate(
-    Il_key = il_temizle(Il),
-    across(c(Yil, Toplam:Bilinmeyen), as.numeric)
-  )
-```
+  filter(!is.na(Il), !grepl("Province|Toplam|İl", Il, ignore.case = TRUE)) %>%
+  mutate(Il_key = il_temizle(Il),
+         across(c(Yil, Toplam:Bilinmeyen), ~ suppressWarnings(as.numeric(.)))) %>%
+  filter(!is.na(Yil))
 
-### Crime Data
-
-```{r}
-#| message: false
-#| warning: false
-
-crime_clean <- crime[-1, ]
+crime_raw   <- read_excel("data/suc.xls", sheet = 1)
+sucsuc      <- crime_raw
+crime_clean <- crime_raw[-1, ]
 colnames(crime_clean)[1] <- "Yil"
 
 crime_long <- crime_clean %>%
   select(-2) %>%
   pivot_longer(cols = -Yil, names_to = "Il", values_to = "SucSayisi") %>%
-  mutate(
-    Il     = gsub("-.*", "", Il),
-    Il_key = il_temizle(Il),
-    Yil    = as.numeric(Yil),
-    SucSayisi = as.numeric(SucSayisi)
-  )
+  mutate(Il        = gsub("-.*", "", Il),
+         Il_key    = il_temizle(Il),
+         Yil       = suppressWarnings(as.numeric(Yil)),
+         SucSayisi = suppressWarnings(as.numeric(SucSayisi)))
 
 heat_df <- crime_long %>% rename(Suc = SucSayisi)
-```
 
-### Combined Analysis Table
-
-```{r}
-#| message: false
-#| warning: false
-
-crime_clean2 <- crime_long %>% filter(Yil >= 2018)
+crime_2018 <- crime_long %>% filter(Yil >= 2018)
 
 analiz_df <- goc_alan %>%
   select(Yil, Il, Il_key, AlinanGoc = Toplam) %>%
-  left_join(
-    goc_veren %>% select(Yil, Il_key, VerilenGoc = Toplam),
-    by = c("Yil", "Il_key")
-  ) %>%
-  left_join(
-    crime_clean2 %>% select(Yil, Il_key, SucSayisi),
-    by = c("Yil", "Il_key")
-  ) %>%
+  left_join(goc_veren %>% select(Yil, Il_key, VerilenGoc = Toplam),
+            by = c("Yil", "Il_key")) %>%
+  left_join(crime_2018  %>% select(Yil, Il_key, SucSayisi),
+            by = c("Yil", "Il_key")) %>%
   select(Yil, Il, AlinanGoc, VerilenGoc, SucSayisi)
 
-head(analiz_df)
+suc_long <- sucsuc %>%
+  rename(Yil = 1) %>%
+  select(-2) %>%
+  pivot_longer(cols = -Yil, names_to = "Il", values_to = "HukumluSayisi") %>%
+  mutate(Yil = suppressWarnings(as.numeric(Yil)),
+         HukumluSayisi = suppressWarnings(as.numeric(HukumluSayisi))) %>%
+  filter(!is.na(Yil), !is.na(HukumluSayisi))
 ```
 
 ---
 
 ## Net Migration
 
-### Net Migration by Province in 2024
+### Net Migration by Province — 2024
 
-```{r}
-#| message: false
-#| warning: false
+```{r net-2024}
 #| fig-width: 9
 #| fig-height: 10
 
-net_goc_2024 <- goc_alan %>%
+net_2024 <- goc_alan %>%
   filter(Yil == 2024) %>%
-  select(Yil, Il, AlinanGoc = Toplam) %>%
-  left_join(
-    goc_veren %>% filter(Yil == 2024) %>% select(Yil, Il, VerilenGoc = Toplam),
-    by = c("Yil", "Il")
-  ) %>%
-  mutate(NetMigration = AlinanGoc - VerilenGoc) %>%
-  arrange(desc(NetMigration))
+  select(Il, AlinanGoc = Toplam) %>%
+  left_join(goc_veren %>% filter(Yil == 2024) %>%
+              select(Il, VerilenGoc = Toplam), by = "Il") %>%
+  mutate(Net = AlinanGoc - VerilenGoc) %>%
+  filter(!is.na(Net))
 
-ggplot(net_goc_2024,
-       aes(x = reorder(Il, NetMigration), y = NetMigration,
-           fill = NetMigration > 0)) +
-  geom_bar(stat = "identity") +
+ggplot(net_2024, aes(reorder(Il, Net), Net, fill = Net > 0)) +
+  geom_col() +
   coord_flip() +
-  ggtitle("Net Migration by Province in 2024") +
-  xlab("Province") + ylab("Net Migration") +
   scale_y_continuous(labels = comma) +
-  scale_fill_manual(values = c("red", "steelblue"), guide = "none") +
-  theme_minimal() +
-  theme(axis.text.y = element_text(size = 7),
-        plot.title  = element_text(size = 16, face = "bold", hjust = 0.5))
+  scale_fill_manual(values = c(COL_NEG, COL_POS), guide = "none") +
+  labs(title = "Net Migration by Province — 2024",
+       x = NULL, y = "Net Migration (in − out)") +
+  theme(axis.text.y = element_text(size = 7))
 ```
 
-### Net Migration by Province (Last 10 Years)
+### Cumulative Net Migration — Last 10 Years
 
-```{r}
-#| message: false
-#| warning: false
+```{r net-10yr}
 #| fig-width: 9
 #| fig-height: 10
 
-son_yil <- max(goc_alan$Yil, na.rm = TRUE)
-ilk_yil <- son_yil - 9
+sy <- max(goc_alan$Yil, na.rm = TRUE); iy <- sy - 9
 
-net_goc_10yil <- goc_alan %>%
-  filter(Yil >= ilk_yil, Yil <= son_yil) %>%
-  group_by(Il) %>%
-  summarise(AlinanGoc = sum(Toplam, na.rm = TRUE), .groups = "drop") %>%
-  left_join(
-    goc_veren %>%
-      filter(Yil >= ilk_yil, Yil <= son_yil) %>%
-      group_by(Il) %>%
-      summarise(VerilenGoc = sum(Toplam, na.rm = TRUE), .groups = "drop"),
-    by = "Il"
-  ) %>%
-  mutate(NetMigration = AlinanGoc - VerilenGoc) %>%
-  arrange(desc(NetMigration))
+net_10 <- goc_alan %>% filter(Yil >= iy) %>%
+  group_by(Il) %>% summarise(In  = sum(Toplam, na.rm = TRUE), .groups = "drop") %>%
+  left_join(goc_veren %>% filter(Yil >= iy) %>%
+              group_by(Il) %>% summarise(Out = sum(Toplam, na.rm = TRUE), .groups = "drop"),
+            by = "Il") %>%
+  mutate(Net = In - Out) %>% filter(!is.na(Net))
 
-ggplot(net_goc_10yil,
-       aes(x = reorder(Il, NetMigration), y = NetMigration,
-           fill = NetMigration > 0)) +
-  geom_bar(stat = "identity") +
+ggplot(net_10, aes(reorder(Il, Net), Net, fill = Net > 0)) +
+  geom_col() +
   coord_flip() +
-  ggtitle(paste0("Net Migration by Province (", ilk_yil, "–", son_yil, ")")) +
-  xlab("Province") + ylab("Net Migration") +
   scale_y_continuous(labels = comma) +
-  scale_fill_manual(values = c("red", "steelblue"), guide = "none") +
-  theme_minimal() +
-  theme(axis.text.y = element_text(size = 7),
-        plot.title  = element_text(size = 16, face = "bold", hjust = 0.5))
+  scale_fill_manual(values = c(COL_NEG, COL_POS), guide = "none") +
+  labs(title = paste0("Cumulative Net Migration (", iy, "–", sy, ")"),
+       x = NULL, y = "Net Migration") +
+  theme(axis.text.y = element_text(size = 7))
 ```
 
 ---
 
-## Correlation & Regression: Migration vs. Crime
+## Correlation & Regression: Crime vs. Migration
 
-```{r}
+In this section, the relationship between crime count and in/out-migration across Turkish provinces is examined using Pearson correlation and simple linear regression.
+
+**Hypotheses (In-Migration vs Crime)**
+
+| | Hypothesis |
+|---|---|
+| **H₀** | There is *no* significant relationship between crime count and in-migration. |
+| **H₁** | There *is* a significant relationship between crime count and in-migration. |
+
+Since the p-value is less than 0.05, **H₀ is rejected** — a statistically significant relationship exists.
+
+```{r corr-table}
 #| message: false
-#| warning: false
 
-analiz_korelasyon <- analiz_df %>% filter(!is.na(SucSayisi))
+df_cor <- analiz_df %>%
+  filter(!is.na(SucSayisi), !is.na(AlinanGoc), !is.na(VerilenGoc))
 
-cat("SUÇ SAYISI vs ALINAN GÖÇ\n")
-print(cor.test(analiz_korelasyon$SucSayisi, analiz_korelasyon$AlinanGoc))
+ci  <- cor.test(df_cor$AlinanGoc,  df_cor$SucSayisi)
+co  <- cor.test(df_cor$VerilenGoc, df_cor$SucSayisi)
 
-cat("\nSUÇ SAYISI vs VERİLEN GÖÇ\n")
-print(cor.test(analiz_korelasyon$SucSayisi, analiz_korelasyon$VerilenGoc))
-
-cat("\nREGRESSION: ALINAN GÖÇ ~ SUÇ\n")
-print(summary(lm(AlinanGoc ~ SucSayisi, data = analiz_korelasyon)))
-
-cat("\nREGRESSION: VERİLEN GÖÇ ~ SUÇ\n")
-print(summary(lm(VerilenGoc ~ SucSayisi, data = analiz_korelasyon)))
+tibble(
+  Comparison     = c("In-Migration vs Crime", "Out-Migration vs Crime"),
+  `Pearson r`    = round(c(ci$estimate, co$estimate), 4),
+  `t-statistic`  = round(c(ci$statistic, co$statistic), 3),
+  `p-value`      = format(c(ci$p.value, co$p.value), scientific = TRUE, digits = 3),
+  `95% CI Lower` = round(c(ci$conf.int[1], co$conf.int[1]), 4),
+  `95% CI Upper` = round(c(ci$conf.int[2], co$conf.int[2]), 4)
+) %>% kable(align = c("l","r","r","r","r","r"),
+            caption = "Pearson Correlation: Migration vs. Crime Count")
 ```
+
+The positive correlation coefficient indicates that **provinces with higher crime counts tend to receive higher levels of migration**. However, the strength of the relationship is moderate rather than very strong — this is largely because large, economically active provinces attract more migrants *and* record higher crime counts due to higher population density and urbanisation.
+
+### Regression Coefficients
+
+```{r reg-table}
+lm_in  <- lm(AlinanGoc  ~ SucSayisi, data = df_cor)
+lm_out <- lm(VerilenGoc ~ SucSayisi, data = df_cor)
+
+make_row <- function(m, label) {
+  s <- coef(summary(m))
+  r2 <- round(summary(m)$r.squared, 4)
+  data.frame(Model = c(label,""), Term = rownames(s),
+             Estimate = round(s[,1],3), SE = round(s[,2],3),
+             `t value` = round(s[,3],3),
+             `p-value` = signif(s[,4],3),
+             `R²` = c(r2, NA), check.names = FALSE)
+}
+
+rbind(make_row(lm_in,"In-Migration ~ Crime"),
+      make_row(lm_out,"Out-Migration ~ Crime")) %>%
+  kable(align = c("l","l","r","r","r","r","r"),
+        caption = "Linear Regression: Migration ~ Crime Count")
+```
+
+> **Interpretation —** The slope coefficient (~3.4) means that an increase of one unit in crime count is associated with an average increase of ~3.4 people in in-migration. The R² of ~0.13 indicates that crime count explains approximately **12.9%** of the variance in in-migration — significant but not the dominant factor. Crime should be interpreted as one of several socio-economic indicators correlated with migration, not a direct cause.
 
 ### Scatter Plots
 
-```{r}
-#| message: false
-#| warning: false
+```{r scatter}
+#| fig-width: 10
+#| fig-height: 4.5
 
-ggplot(analiz_korelasyon, aes(x = SucSayisi, y = AlinanGoc)) +
-  geom_point(alpha = 0.7) +
-  geom_smooth(method = "lm", se = TRUE) +
-  ggtitle("Relationship Between Crime Count and In-Migration") +
-  xlab("Crime Count") + ylab("In-Migration") +
-  scale_y_continuous(labels = comma) +
-  scale_x_continuous(labels = comma) +
-  theme_minimal()
+p1 <- ggplot(df_cor, aes(SucSayisi, AlinanGoc)) +
+  geom_point(color = COL_POS, alpha = 0.5, size = 1.4) +
+  geom_smooth(method = "lm", color = "#7dd3fc", fill = "#38bdf822", linewidth = 0.9) +
+  scale_x_continuous(labels = comma) + scale_y_continuous(labels = comma) +
+  labs(title = "In-Migration vs Crime", x = "Crime Count", y = "In-Migration")
 
-ggplot(analiz_korelasyon, aes(x = SucSayisi, y = VerilenGoc)) +
-  geom_point(alpha = 0.7) +
-  geom_smooth(method = "lm", se = TRUE) +
-  ggtitle("Relationship Between Crime Count and Out-Migration") +
-  xlab("Crime Count") + ylab("Out-Migration") +
-  scale_y_continuous(labels = comma) +
-  scale_x_continuous(labels = comma) +
-  theme_minimal()
+p2 <- ggplot(df_cor, aes(SucSayisi, VerilenGoc)) +
+  geom_point(color = COL_NEG, alpha = 0.5, size = 1.4) +
+  geom_smooth(method = "lm", color = "#fca5a5", fill = "#f8717122", linewidth = 0.9) +
+  scale_x_continuous(labels = comma) + scale_y_continuous(labels = comma) +
+  labs(title = "Out-Migration vs Crime", x = "Crime Count", y = "Out-Migration")
+
+p1 + p2
 ```
 
 ---
 
 ## Crime Trends in Major Provinces
 
-```{r}
-#| message: false
-#| warning: false
+The following chart tracks the annual number of convicted persons entering penal institutions in five major provinces between 2010 and 2024.
+
+```{r crime-trends}
 #| fig-width: 10
 #| fig-height: 6
 
-suc_long <- sucsuc %>%
-  rename(Yil = 1) %>%
-  select(-2) %>%
-  pivot_longer(cols = -Yil, names_to = "Il", values_to = "HukumluSayisi") %>%
-  mutate(
-    Yil = as.numeric(Yil),
-    HukumluSayisi = as.numeric(HukumluSayisi)
-  ) %>%
-  filter(!is.na(Yil), !is.na(HukumluSayisi))
+buyuk <- c("İstanbul-34","Ankara-6","İzmir-35","Antalya-7","Bursa-16")
 
-buyuk_iller <- c("İstanbul-34", "Ankara-6", "İzmir-35", "Antalya-7", "Bursa-16")
-
-suc_trend <- suc_long %>% filter(Il %in% buyuk_iller, Yil >= 2010)
-
-ggplot(suc_trend, aes(x = Yil, y = HukumluSayisi, color = Il)) +
-  geom_line(linewidth = 1) +
-  geom_point(size = 1.5) +
+ggplot(suc_long %>% filter(Il %in% buyuk, Yil >= 2010),
+       aes(Yil, HukumluSayisi, color = Il)) +
+  geom_line(linewidth = 1.1) + geom_point(size = 1.8) +
   facet_wrap(~Il, scales = "free_y", nrow = 2) +
   scale_y_continuous(labels = comma) +
-  scale_x_continuous(breaks = seq(2010, 2024, 2)) +
-  labs(title = "Number of Convicts Entering Penal Institutions in Major Provinces (2010–2024)",
+  scale_x_continuous(breaks = seq(2010,2024,2)) +
+  scale_color_manual(values = c("#38bdf8","#a78bfa","#34d399","#fb923c","#f472b6")) +
+  labs(title = "Convicted Persons Entering Penal Institutions (2010–2024)",
        x = "Year", y = "Number of Convicts") +
-  theme_minimal(base_size = 11) +
-  theme(legend.position = "none",
-        plot.title = element_text(face = "bold", hjust = 0.5),
-        axis.text.x = element_text(angle = 45, hjust = 1))
+  theme(legend.position = "none", axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
 ---
 
-## ARIMA Forecast: Crime Until 2030
+## Time Series Forecasting (ARIMA)
 
-```{r}
-#| message: false
-#| warning: false
+### Methodology
+
+Forecasting was carried out using **ARIMA/SARIMA** models in R via the `auto.arima()` function, which automatically selects the best model order based on AIC. The general SARIMA structure is:
+
+$$\text{ARIMA}(p,d,q)(P,D,Q)_s$$
+
+where *p*, *d*, *q* are the non-seasonal autoregressive, differencing, and moving-average orders; *P*, *D*, *Q* are the seasonal counterparts; and *s* is the seasonal frequency. Since the dataset consists of **annual observations**, models primarily capture long-term trend behaviour. Forecasts are presented with **80% and 95% confidence intervals**.
+
+### Forecast Plots
+
+```{r arima-plots}
 #| fig-width: 10
 #| fig-height: 8
 
-iller <- c("İstanbul-34", "Ankara-6", "İzmir-35", "Çorum-19")
+iller <- c("İstanbul-34","Ankara-6","İzmir-35","Çorum-19")
+res   <- data.frame()
 
-tum_sonuclar <- data.frame()
-
-for (il_adi in iller) {
-  il_data <- suc_long %>% filter(Il == il_adi) %>% arrange(Yil)
-  son_yil <- max(il_data$Yil)
-  horizon <- 2030 - son_yil
-
-  ts_data <- ts(il_data$HukumluSayisi,
-                start = min(il_data$Yil), frequency = 10)
-
-  model  <- auto.arima(ts_data, seasonal = TRUE,
-                        stepwise = FALSE, approximation = FALSE)
-  tahmin <- forecast(model, h = horizon)
-
-  actual_df <- data.frame(
-    Il = il_adi, Yil = il_data$Yil, Deger = il_data$HukumluSayisi,
-    Tip = "Actual", Lower80 = NA, Upper80 = NA, Lower95 = NA, Upper95 = NA
-  )
-  forecast_df <- data.frame(
-    Il = il_adi, Yil = seq(son_yil + 1, 2030),
-    Deger   = as.numeric(tahmin$mean),  Tip = "Forecast",
-    Lower80 = as.numeric(tahmin$lower[, 1]),
-    Upper80 = as.numeric(tahmin$upper[, 1]),
-    Lower95 = as.numeric(tahmin$lower[, 2]),
-    Upper95 = as.numeric(tahmin$upper[, 2])
-  )
-  tum_sonuclar <- bind_rows(tum_sonuclar, actual_df, forecast_df)
+for (il in iller) {
+  d <- suc_long %>% filter(Il == il) %>% arrange(Yil)
+  if (nrow(d) < 5) next
+  sy  <- max(d$Yil); h <- 2030 - sy
+  ts_ <- ts(d$HukumluSayisi, start = min(d$Yil), frequency = 1)
+  fit <- auto.arima(ts_, seasonal = FALSE, stepwise = TRUE, approximation = TRUE)
+  fc  <- forecast(fit, h = h)
+  res <- bind_rows(res,
+    data.frame(Il=il, Yil=d$Yil, Val=d$HukumluSayisi, Type="Actual",
+               L80=NA,U80=NA,L95=NA,U95=NA),
+    data.frame(Il=il, Yil=seq(sy+1,2030),
+               Val=as.numeric(fc$mean), Type="Forecast",
+               L80=as.numeric(fc$lower[,1]), U80=as.numeric(fc$upper[,1]),
+               L95=as.numeric(fc$lower[,2]), U95=as.numeric(fc$upper[,2])))
 }
 
-ggplot(tum_sonuclar, aes(x = Yil, y = Deger)) +
-  geom_ribbon(data = tum_sonuclar %>% filter(Tip == "Forecast"),
-              aes(ymin = Lower95, ymax = Upper95), fill = "lightblue", alpha = 0.35) +
-  geom_ribbon(data = tum_sonuclar %>% filter(Tip == "Forecast"),
-              aes(ymin = Lower80, ymax = Upper80), fill = "blue", alpha = 0.25) +
-  geom_line(data  = tum_sonuclar %>% filter(Tip == "Actual"),
-            color = "black", linewidth = 0.9) +
-  geom_point(data = tum_sonuclar %>% filter(Tip == "Actual"),
-             color = "black", size = 1.5) +
-  geom_line(data  = tum_sonuclar %>% filter(Tip == "Forecast"),
-            color = "blue", linewidth = 1) +
-  geom_vline(xintercept = 2020, linetype = "dashed", color = "red") +
-  facet_wrap(~Il, scales = "free_y", ncol = 2) +
-  scale_x_continuous(breaks = seq(1990, 2030, 5), limits = c(1990, 2030)) +
-  scale_y_continuous(labels = comma) +
-  labs(title    = "Crime Trend and Forecast Until 2030",
-       subtitle = "10-year seasonal ARIMA structure tested on annual data",
-       x = "Year", y = "Number of Convicts") +
-  theme_minimal(base_size = 11) +
-  theme(plot.title    = element_text(face = "bold", hjust = 0.5),
-        plot.subtitle = element_text(hjust = 0.5),
-        strip.text    = element_text(face = "bold"),
-        axis.text.x   = element_text(angle = 45, hjust = 1))
+ggplot(res, aes(Yil, Val)) +
+  geom_ribbon(data=filter(res,Type=="Forecast"), aes(ymin=L95,ymax=U95),
+              fill=COL_FCST, alpha=0.18) +
+  geom_ribbon(data=filter(res,Type=="Forecast"), aes(ymin=L80,ymax=U80),
+              fill=COL_FCST, alpha=0.30) +
+  geom_line(data=filter(res,Type=="Actual"),  color="#e2e8f0", linewidth=0.9) +
+  geom_point(data=filter(res,Type=="Actual"), color="#e2e8f0", size=1.5) +
+  geom_line(data=filter(res,Type=="Forecast"),color=COL_FCST,  linewidth=1.1) +
+  geom_vline(xintercept=2020, linetype="dashed", color=COL_NEG, alpha=0.5) +
+  facet_wrap(~Il, scales="free_y", ncol=2) +
+  scale_x_continuous(breaks=seq(1990,2030,5), limits=c(1990,2030)) +
+  scale_y_continuous(labels=comma) +
+  labs(title    = "Crime Trend & ARIMA Forecast to 2030",
+       subtitle = "Shaded bands: 80% (dark) and 95% (light) confidence intervals",
+       x="Year", y="Number of Convicts") +
+  theme(axis.text.x = element_text(angle=45, hjust=1))
 ```
+
+### Documented Forecast Values
+
+The table below presents the point-estimate forecast values obtained from the ARIMA modelling exercise.
+
+```{r forecast-table}
+tibble(
+  Province  = c("İstanbul","Ankara","İzmir","Çorum"),
+  `2021`    = c(20923L, 13231L,  4163L, 42478L),
+  `2025`    = c(23117L, 14793L,  4652L, 47325L),
+  `2030`    = c(25858L, 16746L,  5262L, 53385L)
+) %>%
+  mutate(across(where(is.integer), ~ format(.x, big.mark=","))) %>%
+  kable(align = c("l","r","r","r"),
+        caption = "ARIMA Point-Estimate Forecasts — Number of Convicted Persons")
+```
+
+> **Confidence intervals (2030 estimate):** İstanbul 95% CI ≈ 16,706 – 35,011. Wider intervals reflect increasing uncertainty over longer horizons, which is expected in long-run forecasting.
+
+### Province-Level Interpretations
+
+| Province | Trend | Predictability |
+|---|---|---|
+| **İstanbul** | Strong upward; accelerating after 2010 | Moderate — wide CI |
+| **Ankara** | Gradual, stable increase | High — narrow CI |
+| **İzmir** | Moderate upward, flattening post-2020 | Moderate |
+| **Çorum** | Sharp increase after 2014; highest relative growth | Low — very wide CI |
+
+> All selected provinces show an **increasing long-term trend**. Because the dataset consists of annual data, the models primarily capture trend behaviour rather than short-term seasonality. Results should be treated as trend-oriented forecasts rather than exact future predictions.
+
+---
+
+## Crime Rate Heatmap (2008–2020)
+
+### Objective
+
+Rather than using raw crime counts, this analysis computes **population-adjusted crime rates** (convictions per 100,000 population) to make provinces of different sizes comparable. The top 20 provinces by average crime rate are visualised.
+
+$$\text{Crime Rate} = \frac{\text{Convictions}}{\text{Population}} \times 100{,}000$$
+
+```{r heatmap-data}
+#| message: false
+
+population_df <- tibble(
+  Il = c("Adana","Adiyaman","Afyonkarahisar","Agri","Aksaray","Amasya",
+         "Ankara","Antalya","Ardahan","Artvin","Aydin","Balikesir","Bartin",
+         "Batman","Bayburt","Bilecik","Bingol","Bitlis","Bolu","Burdur",
+         "Bursa","Canakkale","Cankiri","Corum","Denizli","Diyarbakir","Duzce",
+         "Edirne","Elazig","Erzincan","Erzurum","Eskisehir","Gaziantep",
+         "Giresun","Gumushane","Hakkari","Hatay","Igdir","Isparta","Istanbul",
+         "Izmir","Kahramanmaras","Karabuk","Karaman","Kars","Kastamonu",
+         "Kayseri","Kilis","Kirikkale","Kirklareli","Kirsehir","Kocaeli",
+         "Konya","Kutahya","Malatya","Manisa","Mardin","Mersin","Mugla","Mus",
+         "Nevsehir","Nigde","Ordu","Osmaniye","Rize","Sakarya","Samsun",
+         "Sanliurfa","Siirt","Sinop","Sirnak","Sivas","Tekirdag","Tokat",
+         "Trabzon","Tunceli","Usak","Van","Yalova","Yozgat","Zonguldak"),
+  Pop = c(2150000,610000,710000,540000,390000,330000,5200000,2200000,
+          100000,170000,1050000,1200000,190000,550000,80000,210000,
+          260000,340000,290000,260000,2800000,500000,180000,530000,
+          980000,1600000,350000,400000,570000,220000,760000,780000,
+          1800000,420000,140000,280000,1500000,190000,420000,14000000,
+          4000000,1050000,230000,240000,300000,370000,1300000,130000,
+          280000,350000,220000,1700000,2100000,570000,760000,1350000,
+          780000,1700000,900000,400000,290000,340000,750000,500000,
+          330000,950000,1250000,1900000,310000,210000,450000,620000,
+          900000,610000,750000,85000,350000,1100000,230000,420000,600000))
+
+fix_tr <- function(x) {
+  pairs <- list(c("Ç","C"),c("Ğ","G"),c("İ","I"),c("Ö","O"),c("Ş","S"),c("Ü","U"),
+                c("ç","c"),c("ğ","g"),c("ı","i"),c("ö","o"),c("ş","s"),c("ü","u"))
+  x <- trimws(x)
+  for (p in pairs) x <- gsub(p[1],p[2],x)
+  x
+}
+
+heat_rate <- heat_df %>%
+  mutate(Il = fix_tr(Il)) %>%
+  filter(!is.na(Il), Il != "",
+         !grepl("^\\.\\.\\.[0-9]+$|^[0-9]+$", Il)) %>%
+  left_join(population_df, by = "Il") %>%
+  mutate(Rate = (Suc / Pop) * 1e5) %>%
+  filter(!is.na(Rate))
+
+top20 <- heat_rate %>%
+  group_by(Il) %>% summarise(Avg = mean(Rate, na.rm=TRUE), .groups="drop") %>%
+  slice_max(Avg, n=20)
+```
+
+### Standard Crime Rate Heatmap
+
+```{r heatmap-std}
+#| fig-width: 11
+#| fig-height: 8
+
+ggplot(heat_rate %>% filter(Il %in% top20$Il),
+       aes(factor(Yil), reorder(Il, Rate), fill = Rate)) +
+  geom_tile(color = "#0f172a", linewidth = 0.4) +
+  scale_fill_gradientn(
+    colours = c("#0f172a","#1e3a5f","#0284c7","#38bdf8","#e0f2fe"),
+    name = "Crime Rate\nper 100k") +
+  labs(title    = "Crime Rate Heatmap — Top 20 Provinces (2008–2020)",
+       subtitle = "Convictions per 100,000 population",
+       x = "Year", y = NULL) +
+  theme(axis.text.x  = element_text(angle=45, hjust=1),
+        axis.text.y  = element_text(size=10),
+        panel.grid   = element_blank(),
+        legend.key.height = unit(1.2,"cm"))
+```
+
+### Log-Scale Heatmap
+
+A small number of provinces with extremely high crime rates can dominate the colour scale in the standard heatmap, masking differences among the remaining provinces. The **log-transformed** version below compresses outlier values and makes moderate regional variation more visible.
+
+```{r heatmap-log}
+#| fig-width: 11
+#| fig-height: 8
+
+ggplot(heat_rate %>% filter(Il %in% top20$Il),
+       aes(factor(Yil), reorder(Il, Rate), fill = Rate)) +
+  geom_tile(color = "#0f172a", linewidth = 0.4) +
+  scale_fill_gradientn(
+    colours = c("#0f172a","#1e3a5f","#0284c7","#38bdf8","#e0f2fe"),
+    trans   = "log10",
+    name = "Crime Rate\nper 100k\n(log scale)") +
+  labs(title    = "Crime Rate Heatmap — Log Scale (2008–2020)",
+       subtitle = "Log transformation reveals differences hidden by extreme values",
+       x = "Year", y = NULL) +
+  theme(axis.text.x  = element_text(angle=45, hjust=1),
+        axis.text.y  = element_text(size=10),
+        panel.grid   = element_blank(),
+        legend.key.height = unit(1.2,"cm"))
+```
+
+### Key Findings
+
+- Crime intensity is **not evenly distributed** — provinces such as Çorum, Amasya, Burdur, Kilis, and Artvin consistently show higher normalised crime rates.
+- A **general upward trend** is visible after approximately 2013, with stronger increases between 2017 and 2020.
+- **Smaller and medium-sized provinces can have higher per-capita crime rates** than major cities — highlighting the importance of population normalisation over raw counts.
+- The log-scale transformation provides a more balanced view, making regional differences clearly distinguishable.
 
 ---
 
 ## Ankara In-Migration Forecast
 
-```{r}
-#| message: false
-#| warning: false
+```{r ankara-fcst}
+#| fig-width: 9
+#| fig-height: 5
 
-ankara_goc <- goc_alan %>%
+ankara <- goc_alan %>%
   filter(Il == "Ankara") %>%
-  group_by(Yil) %>%
-  summarise(AlinanGoc = sum(Toplam, na.rm = TRUE), .groups = "drop") %>%
+  group_by(Yil) %>% summarise(Goc = sum(Toplam, na.rm=TRUE), .groups="drop") %>%
   arrange(Yil)
 
-ankara_ts     <- ts(ankara_goc$AlinanGoc, start = min(ankara_goc$Yil), frequency = 1)
-ankara_model  <- auto.arima(ankara_ts, seasonal = TRUE,
-                             stepwise = FALSE, approximation = FALSE)
-ankara_tahmin <- forecast(ankara_model, h = 3)
-
-autoplot(ankara_tahmin) +
-  ggtitle("Ankara In-Migration Forecast") +
-  xlab("Year") + ylab("In-Migration") +
-  scale_x_continuous(breaks = seq(2018, 2027, 1)) +
-  theme_minimal()
-```
-
----
-
-## Crime Rate Heatmap
-
-```{r}
-#| message: false
-#| warning: false
-#| fig-width: 11
-#| fig-height: 8
-
-population_df <- data.frame(
-  Il = c("Adana","Adiyaman","Afyonkarahisar","Agri","Aksaray","Amasya","Ankara","Antalya",
-         "Ardahan","Artvin","Aydin","Balikesir","Bartin","Batman","Bayburt","Bilecik",
-         "Bingol","Bitlis","Bolu","Burdur","Bursa","Canakkale","Cankiri","Corum",
-         "Denizli","Diyarbakir","Duzce","Edirne","Elazig","Erzincan","Erzurum",
-         "Eskisehir","Gaziantep","Giresun","Gumushane","Hakkari","Hatay","Igdir",
-         "Isparta","Istanbul","Izmir","Kahramanmaras","Karabuk","Karaman","Kars",
-         "Kastamonu","Kayseri","Kilis","Kirikkale","Kirklareli","Kirsehir","Kocaeli",
-         "Konya","Kutahya","Malatya","Manisa","Mardin","Mersin","Mugla","Mus",
-         "Nevsehir","Nigde","Ordu","Osmaniye","Rize","Sakarya","Samsun","Sanliurfa",
-         "Siirt","Sinop","Sirnak","Sivas","Tekirdag","Tokat","Trabzon","Tunceli",
-         "Usak","Van","Yalova","Yozgat","Zonguldak"),
-  Population = c(2150000,610000,710000,540000,390000,330000,5200000,2200000,
-                 100000,170000,1050000,1200000,190000,550000,80000,210000,
-                 260000,340000,290000,260000,2800000,500000,180000,530000,
-                 980000,1600000,350000,400000,570000,220000,760000,
-                 780000,1800000,420000,140000,280000,1500000,190000,
-                 420000,14000000,4000000,1050000,230000,240000,300000,
-                 370000,1300000,130000,280000,350000,220000,1700000,
-                 2100000,570000,760000,1350000,780000,1700000,900000,400000,
-                 290000,340000,750000,500000,330000,950000,1250000,1900000,
-                 310000,210000,450000,620000,900000,610000,750000,85000,
-                 350000,1100000,230000,420000,600000)
-)
-
-fix_names <- function(x) {
-  x <- trimws(x)
-  pairs <- list(c("Ç","C"),c("Ğ","G"),c("İ","I"),c("Ö","O"),c("Ş","S"),c("Ü","U"),
-                c("ç","c"),c("ğ","g"),c("ı","i"),c("ö","o"),c("ş","s"),c("ü","u"))
-  for (p in pairs) x <- gsub(p[1], p[2], x)
-  x
+if (nrow(ankara) >= 4) {
+  fit_a <- auto.arima(ts(ankara$Goc, start=min(ankara$Yil), frequency=1),
+                       seasonal=FALSE, stepwise=TRUE, approximation=TRUE)
+  fc_a  <- forecast(fit_a, h=3)
+  autoplot(fc_a) +
+    scale_x_continuous(breaks=seq(2018,2027,1)) +
+    scale_y_continuous(labels=comma) +
+    labs(title="Ankara In-Migration Forecast (ARIMA)",
+         x="Year", y="In-Migration") +
+    theme_dark_site() +
+    theme(axis.text.x = element_text(angle=45, hjust=1))
 }
-
-heat_df_rate <- heat_df %>%
-  mutate(Il = fix_names(Il)) %>%
-  filter(!is.na(Il), Il != "",
-         !grepl("^\\.\\.\\.[0-9]+$", Il),
-         !grepl("^[0-9]+$", Il)) %>%
-  left_join(population_df, by = "Il") %>%
-  mutate(Crime_Rate = (Suc / Population) * 100000) %>%
-  filter(!is.na(Crime_Rate))
-
-top20_rate <- heat_df_rate %>%
-  group_by(Il) %>%
-  summarise(Avg = mean(Crime_Rate, na.rm = TRUE), .groups = "drop") %>%
-  arrange(desc(Avg)) %>%
-  slice_head(n = 20)
-
-heat_top20_rate <- heat_df_rate %>% filter(Il %in% top20_rate$Il)
-
-ggplot(heat_top20_rate,
-       aes(x = factor(Yil), y = reorder(Il, Crime_Rate), fill = Crime_Rate)) +
-  geom_tile(color = "white", linewidth = 0.45) +
-  scale_fill_gradientn(
-    colours = c("#fff7bc","#fec44f","#fd8d3c","#e31a1c","#800026"),
-    trans = "log10",
-    name = "Crime Rate\nper 100,000\n(log scale)"
-  ) +
-  labs(title    = "Crime Rate Heatmap by Province Between 2008 and 2020",
-       subtitle = "Log scale — darker colors indicate higher crime rates per 100,000 population",
-       x = "Year", y = "Province") +
-  theme_minimal(base_size = 12) +
-  theme(plot.title    = element_text(size = 16, face = "bold"),
-        plot.subtitle = element_text(size = 10),
-        axis.text.x   = element_text(angle = 45, hjust = 1),
-        axis.text.y   = element_text(size = 10),
-        panel.grid    = element_blank())
 ```

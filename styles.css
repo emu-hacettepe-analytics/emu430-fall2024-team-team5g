@@ -1,81 +1,133 @@
-/* EMU430 Team 5G - Navy / Yellow / White Theme */
-/* Primary: #1A3560 (navy), Accent: #F4C430 (gold), Background: #FFFFFF */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* ── Color tokens ── */
+:root {
+  --bg-base:     #0f172a;
+  --bg-surface:  #1e293b;
+  --accent:      #38bdf8;
+  --accent-dim:  rgba(56, 189, 248, 0.12);
+  --accent-glow: rgba(56, 189, 248, 0.25);
+  --border:      rgba(255, 255, 255, 0.07);
+  --text-main:   #e2e8f0;
+  --text-muted:  #94a3b8;
+}
+
+/* ── Base ── */
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-base) !important;
+  color: var(--text-main) !important;
+  -webkit-font-smoothing: antialiased;
+}
 
 /* ── Navbar ── */
 .navbar {
-  background-color: #1A3560 !important;
-  border-bottom: 3px solid #F4C430;
+  background-color: rgba(15, 23, 42, 0.94) !important;
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
-
-.navbar-brand,
-.navbar .nav-link {
-  color: #F4C430 !important;
-  font-weight: 600;
+.navbar-brand {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-main) !important;
 }
+.navbar-brand:hover { color: var(--accent) !important; }
+.nav-link { color: var(--text-muted) !important; transition: color .2s; }
+.nav-link:hover, .nav-link.active { color: var(--accent) !important; }
 
-.navbar .nav-link:hover,
-.navbar .nav-link.active {
-  color: #FFFFFF !important;
-}
+/* ── Page layout ── */
+#quarto-content, .quarto-container, main { background-color: var(--bg-base) !important; }
+#quarto-sidebar, #quarto-margin-sidebar    { background-color: var(--bg-base) !important; }
 
-/* ── Page headings ── */
-h1, h2, h3 {
-  color: #1A3560;
-}
-
+/* ── Headings ── */
+h1 { font-size: 2rem; font-weight: 700; letter-spacing: -0.03em; color: #f8fafc; }
 h2 {
-  border-bottom: 2px solid #F4C430;
-  padding-bottom: 4px;
+  font-size: 1.35rem; font-weight: 600; letter-spacing: -0.02em;
+  color: #f1f5f9;
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 0.35rem;
+  margin-top: 2rem;
 }
+h3 { font-size: 1.1rem; font-weight: 600; color: #cbd5e1; margin-top: 1.5rem; }
 
 /* ── Links ── */
-a {
-  color: #1A3560;
+a { color: var(--accent); }
+a:hover { color: #7dd3fc; }
+
+/* ── Tables ── */
+.table, table {
+  width: 100%;
+  border-collapse: separate !important;
+  border-spacing: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  font-size: 0.875rem;
+  background-color: var(--bg-surface);
+}
+.table thead tr th, table thead tr th {
+  background-color: var(--accent-dim) !important;
+  color: var(--accent) !important;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--accent-glow) !important;
+  border-top: none !important;
+}
+.table tbody td, table tbody td {
+  padding: 0.6rem 1rem;
+  color: var(--text-main);
+  border-bottom: 1px solid var(--border) !important;
+  vertical-align: middle;
+}
+.table tbody tr:last-child td, table tbody tr:last-child td { border-bottom: none !important; }
+.table tbody tr:hover td, table tbody tr:hover td {
+  background-color: var(--accent-dim) !important;
+  transition: background-color .15s;
+}
+.table-striped > tbody > tr:nth-of-type(odd) > * {
+  background-color: rgba(255,255,255,0.02) !important;
+  color: var(--text-main) !important;
 }
 
-a:hover {
-  color: #F4C430;
+/* ── Code blocks ── */
+pre, code, kbd { font-family: 'JetBrains Mono', 'Cascadia Code', 'Fira Code', monospace !important; }
+div.sourceCode, pre.sourceCode {
+  background-color: var(--bg-surface) !important;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.85em;
+}
+.code-fold-btn { color: var(--accent) !important; font-size: 0.8rem; }
+
+/* ── TOC ── */
+#TOC a { color: var(--text-muted) !important; font-size: 0.85rem; }
+#TOC a:hover { color: var(--accent) !important; }
+#TOC a.active { color: var(--accent) !important; font-weight: 600; }
+
+/* ── Callouts ── */
+.callout {
+  background-color: var(--bg-surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 8px;
 }
 
 /* ── Footer ── */
 .nav-footer {
-  background-color: #1A3560 !important;
-  color: #FFFFFF;
-  border-top: 3px solid #F4C430;
+  background-color: var(--bg-base) !important;
+  border-top: 1px solid var(--border);
+  color: var(--text-muted) !important;
+  font-size: 0.82rem;
 }
 
-.nav-footer a {
-  color: #F4C430;
-}
-
-/* ── TOC sidebar ── */
-#TOC a {
-  color: #1A3560;
-}
-
-#TOC a:hover,
-#TOC a.active {
-  color: #F4C430;
-  font-weight: bold;
-}
-
-/* ── Code blocks ── */
-pre.sourceCode {
-  border-left: 4px solid #F4C430;
-  background-color: #f8f9fb;
-}
-
-/* ── Tables ── */
-table thead {
-  background-color: #1A3560;
-  color: #FFFFFF;
-}
-
-table tbody tr:hover {
-  background-color: #fff8e1;
-}
-
-/* ── Callout / alert boxes ── */
-.callout {
-  border-left-color: #F4C430;
+/* ── Misc ── */
+hr { border-color: var(--border) !important; opacity: 1; margin: 1.75rem 0; }
+blockquote { border-left: 3px solid var(--accent); padding-left: 1rem; color: var(--text-muted); }
+#quarto-back-to-top {
+  background-color: var(--bg-surface) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--accent) !important;
 }

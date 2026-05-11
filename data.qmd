@@ -12,34 +12,31 @@ All datasets are obtained from **TÜİK** (Türkiye İstatistik Kurumu — Turki
 
 ### 1. Provincial In-Migration by Reason (`aldigi_goc.xls`)
 
-Records the number of people who migrated **into** each province, broken down by reason for migration (work, education, family, housing, etc.).
+Records the number of people who migrated **into** each province, broken down by reason for migration.
 
-- **Sheet:** `t10`
 - **Coverage:** 81 provinces × 2018–2024
-- **Key columns:** Year, Province, Total in-migration, and migration reason categories
+- **Key columns:** Year, Province, Total, and 12 migration-reason categories
 
 ### 2. Provincial Out-Migration by Reason (`verdigi_goc.xls`)
 
 Records the number of people who migrated **out of** each province, broken down by reason for migration.
 
-- **Sheet:** `t11`
 - **Coverage:** 81 provinces × 2018–2024
-- **Key columns:** Year, Province, Total out-migration, and migration reason categories
+- **Key columns:** Year, Province, Total, and 12 migration-reason categories
 
 ### 3. Education Status by Province (`egitim.xlsx`)
 
 Population aged 6 and above classified by educational attainment level, broken down by province, year, and gender.
 
-- **Sheet:** `Eğitim Durumu`
-- **Coverage:** 81 provinces × multiple years (2018–2024)
-- **Key columns:** Year, Province, Education level, Total, Male, Female, Male %, Female %
+- **Coverage:** 81 provinces × 2018–2024
+- **Key columns:** Year, Province, Education level, Total, Male, Female
 
 ### 4. Crime Data — Convicted Persons by Province (`suc.xls`)
 
-Number of convicted persons entering correctional institutions, broken down by province.
+Number of convicted persons entering correctional institutions, broken down by province and year.
 
-- **Coverage:** Multiple years including 2018 onwards
-- **Key columns:** Province (columns), Year (rows), Count of convicted persons
+- **Coverage:** 81 provinces × 2008–2020+
+- **Key columns:** Year (rows) × Province (columns)
 
 ---
 
@@ -48,41 +45,134 @@ Number of convicted persons entering correctional institutions, broken down by p
 ```{r}
 #| message: false
 #| warning: false
+#| code-fold: false
 
 library(readxl)
+library(dplyr)
+library(tidyr)
 library(knitr)
 
-# Read by sheet index to avoid encoding issues across platforms
-aldigi_goc  <- read_excel("data/aldigi_goc.xls",  sheet = 1)
-verdigi_goc <- read_excel("data/verdigi_goc.xls", sheet = 1)
-egitim      <- read_excel("data/egitim.xlsx",      sheet = 1)
-suc         <- read_excel("data/suc.xls",          sheet = 1)
+# shared column names for both migration files
+goc_cols <- c("Year", "Province", "Total", "Appointment", "FindingWork",
+              "Education", "Family", "Housing", "FamilyDependent",
+              "ReturnHometown", "Health", "HousePurchase", "Retirement",
+              "Other", "Unknown")
+
+clean_preview <- function(df, n = 8) {
+  df %>%
+    fill(Year, .direction = "down") %>%
+    filter(!is.na(Province),
+           !grepl("Province|Total|İl|Toplam", Province, ignore.case = TRUE)) %>%
+    mutate(across(everything(), function(x) suppressWarnings(as.numeric(x)),
+                  .names = "{.col}"),
+           .keep = "none") %>%
+    { df %>%
+        fill(Year, .direction = "down") %>%
+        filter(!is.na(Province),
+               !grepl("Province|Total|İl|Toplam", Province, ignore.case = TRUE)) %>%
+        mutate(Year = suppressWarnings(as.numeric(Year))) %>%
+        filter(!is.na(Year)) %>%
+        head(n)
+    }
+}
 ```
 
-### In-Migration Data
+### In-Migration Data (first 8 rows)
 
 ```{r}
 #| message: false
-kable(head(aldigi_goc, 6))
+#| warning: false
+
+goc_in_raw <- read_excel("data/aldigi_goc.xls",  sheet = 1,
+                          skip = 3, col_names = FALSE)
+colnames(goc_in_raw) <- goc_cols
+
+goc_in_raw %>%
+  fill(Year, .direction = "down") %>%
+  filter(!is.na(Province),
+         !grepl("Province|Total|İl|Toplam", Province, ignore.case = TRUE)) %>%
+  mutate(Year = suppressWarnings(as.numeric(Year))) %>%
+  filter(!is.na(Year)) %>%
+  select(Year, Province, Total, FindingWork, Education, Family, Housing) %>%
+  mutate(across(where(is.numeric), ~ format(.x, big.mark = ",", scientific = FALSE))) %>%
+  head(8) %>%
+  kable(col.names = c("Year", "Province", "Total", "Work", "Education",
+                      "Family", "Housing"),
+        align = c("c","l","r","r","r","r","r"),
+        caption = "Provincial In-Migration by Selected Reason (aldigi_goc.xls)")
 ```
 
-### Out-Migration Data
+### Out-Migration Data (first 8 rows)
 
 ```{r}
 #| message: false
-kable(head(verdigi_goc, 6))
+#| warning: false
+
+goc_out_raw <- read_excel("data/verdigi_goc.xls", sheet = 1,
+                           skip = 3, col_names = FALSE)
+colnames(goc_out_raw) <- goc_cols
+
+goc_out_raw %>%
+  fill(Year, .direction = "down") %>%
+  filter(!is.na(Province),
+         !grepl("Province|Total|İl|Toplam", Province, ignore.case = TRUE)) %>%
+  mutate(Year = suppressWarnings(as.numeric(Year))) %>%
+  filter(!is.na(Year)) %>%
+  select(Year, Province, Total, FindingWork, Education, Family, Housing) %>%
+  mutate(across(where(is.numeric), ~ format(.x, big.mark = ",", scientific = FALSE))) %>%
+  head(8) %>%
+  kable(col.names = c("Year", "Province", "Total", "Work", "Education",
+                      "Family", "Housing"),
+        align = c("c","l","r","r","r","r","r"),
+        caption = "Provincial Out-Migration by Selected Reason (verdigi_goc.xls)")
 ```
 
-### Education Status Data
+### Education Status Data (first 8 rows)
 
 ```{r}
 #| message: false
-kable(head(egitim, 6))
+#| warning: false
+
+egitim_raw <- read_excel("data/egitim.xlsx", sheet = 1, col_names = FALSE)
+
+# Find first row where column 1 looks like a 4-digit year
+year_row <- which(sapply(egitim_raw[[1]],
+                         function(x) grepl("^20[0-9]{2}$", as.character(x))))[1]
+skip_n   <- if (!is.na(year_row) && year_row > 1) year_row - 1L else 2L
+
+egitim <- read_excel("data/egitim.xlsx", sheet = 1, skip = skip_n) %>%
+  filter(!is.na(.[[1]]))
+
+egitim %>%
+  head(8) %>%
+  kable(caption = "Education Status by Province (egitim.xlsx)")
 ```
 
-### Crime Data
+### Crime Data — Sample (5 provinces, recent years)
 
 ```{r}
 #| message: false
-kable(head(suc, 6))
+#| warning: false
+
+suc_raw <- read_excel("data/suc.xls", sheet = 1)
+
+# Row 1 is typically a second header row; keep from row 2 onwards
+suc_clean <- suc_raw[-1, ]
+colnames(suc_clean)[1] <- "Year"
+
+# Remove the 2nd column if it contains duplicate info
+if (ncol(suc_clean) > 1 && all(is.na(suc_clean[[2]]) | suc_clean[[2]] == "")) {
+  suc_clean <- suc_clean[, -2]
+}
+
+suc_preview <- suc_clean %>%
+  mutate(Year = suppressWarnings(as.numeric(Year))) %>%
+  filter(!is.na(Year)) %>%
+  arrange(desc(Year)) %>%
+  head(6) %>%
+  select(1:6)   # Year + first 5 provinces
+
+kable(suc_preview,
+      caption = "Convicted Persons by Province — Sample (suc.xls)",
+      align = c("c", rep("r", ncol(suc_preview) - 1)))
 ```
