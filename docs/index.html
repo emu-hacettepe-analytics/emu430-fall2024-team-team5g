@@ -2,13 +2,16 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.25">
+<meta name="generator" content="quarto-1.9.36">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>Migration, Crime and Education Analytics Project – Migration, Crime and Education Analytics Lab</title>
 <style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -32,15 +35,14 @@ ul.task-list li input[type="checkbox"] {
 <meta name="quarto:offset" content="./">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-efd550d059c3056e63f96aae7042573d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-8a7bb8a3e06cc5e54db5d15903f32f38.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -80,8 +82,6 @@ ul.task-list li input[type="checkbox"] {
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a href="./index.html" class="navbar-brand navbar-brand-logo">
-    </a>
     <a class="navbar-brand" href="./index.html">
     <span class="navbar-title">Migration, Crime and Education Analytics Lab</span>
     </a>
@@ -97,17 +97,17 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./data.qmd"> 
+    <a class="nav-link" href="./data.html"> 
 <span class="menu-text">Data</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./analysis.qmd"> 
+    <a class="nav-link" href="./analysis.html"> 
 <span class="menu-text">Analysis</span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
-    <a href="https://twitter.com" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-github"></i></a>
+    <a href="https://github.com/emu-hacettepe-analytics/emu430-fall2024-team-team5g" title="" class="quarto-navigation-tool px-1" aria-label=""><i class="bi bi-github"></i></a>
 </div>
       </div> <!-- /container-fluid -->
     </nav>
@@ -121,8 +121,10 @@ ul.task-list li input[type="checkbox"] {
    
   <ul>
   <li><a href="#project-overview" id="toc-project-overview" class="nav-link active" data-scroll-target="#project-overview">Project Overview</a></li>
-  <li><a href="#main-methods" id="toc-main-methods" class="nav-link" data-scroll-target="#main-methods">Main Methods</a></li>
-  <li><a href="#tools-used" id="toc-tools-used" class="nav-link" data-scroll-target="#tools-used">Tools Used</a></li>
+  <li><a href="#team-members" id="toc-team-members" class="nav-link" data-scroll-target="#team-members">Team Members</a></li>
+  <li><a href="#data" id="toc-data" class="nav-link" data-scroll-target="#data">Data</a></li>
+  <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods">Methods</a></li>
+  <li><a href="#tools" id="toc-tools" class="nav-link" data-scroll-target="#tools">Tools</a></li>
   </ul>
 </nav>
 </nav>
@@ -154,34 +156,50 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="project-overview" class="level2">
 <h2 class="anchored" data-anchor-id="project-overview">Project Overview</h2>
-<p>yokk</p>
+<p>This project analyzes the relationship between internal migration, crime statistics, and education levels across Turkish provinces. Using data from TÜİK (Turkish Statistical Institute) covering the period 2018–2024, we aim to uncover socio-economic patterns that drive provincial differences in Turkey.</p>
 <p>The study focuses on three main questions:</p>
 <ol type="1">
-<li>How does migration change across provinces?</li>
-<li>Is there a relationship between crime counts and migration?</li>
-<li>How are education levels related to crime indicators?</li>
+<li>How does net migration vary across provinces, and which provinces attract or lose population?</li>
+<li>Is there a relationship between migration patterns and crime indicators?</li>
+<li>How are education levels related to migration and crime across provinces?</li>
 </ol>
 </section>
-<section id="main-methods" class="level2">
-<h2 class="anchored" data-anchor-id="main-methods">Main Methods</h2>
+<section id="team-members" class="level2">
+<h2 class="anchored" data-anchor-id="team-members">Team Members</h2>
+<ol type="1">
+<li>Alp Çağrı Karapıçak</li>
+<li>Koray Ekici</li>
+<li>Habibe Akbaş</li>
+<li>Mevlüt Faruk Dikmen</li>
+<li>Yahya Eren Kaya</li>
+</ol>
+</section>
+<section id="data" class="level2">
+<h2 class="anchored" data-anchor-id="data">Data</h2>
+<p>All datasets are sourced from <strong>TÜİK</strong> and cover Turkish provinces from <strong>2018 onwards</strong> (the period where all datasets align):</p>
 <ul>
-<li>Data cleaning and transformation</li>
-<li>Correlation analysis</li>
-<li>Linear regression</li>
-<li>Net migration analysis</li>
-<li>Time series forecasting with ARIMA/SARIMA</li>
-<li>Heatmap visualization for education and crime indicators</li>
+<li><strong>Provincial in-migration by reason</strong> (2018–2024)</li>
+<li><strong>Provincial out-migration by reason</strong> (2018–2024)</li>
+<li><strong>Educational attainment by province</strong> (2018–2024)</li>
+<li><strong>Convicted persons in correctional institutions by province</strong></li>
 </ul>
 </section>
-<section id="tools-used" class="level2">
-<h2 class="anchored" data-anchor-id="tools-used">Tools Used</h2>
+<section id="methods" class="level2">
+<h2 class="anchored" data-anchor-id="methods">Methods</h2>
 <ul>
-<li>R</li>
-<li>dplyr</li>
-<li>tidyr</li>
-<li>ggplot2</li>
-<li>forecast</li>
-<li>Quarto</li>
+<li>Net migration calculation (in-migration − out-migration) by province and year</li>
+<li>Exploratory data analysis and visualization</li>
+<li>Correlation analysis between migration, education, and crime variables</li>
+<li>Linear regression models</li>
+<li>Time series analysis (ARIMA/SARIMA) for migration trends</li>
+<li>Heatmap visualizations for provincial comparisons</li>
+</ul>
+</section>
+<section id="tools" class="level2">
+<h2 class="anchored" data-anchor-id="tools">Tools</h2>
+<ul>
+<li>R (dplyr, tidyr, ggplot2, readxl, forecast)</li>
+<li>Quarto for reporting</li>
 </ul>
 
 
